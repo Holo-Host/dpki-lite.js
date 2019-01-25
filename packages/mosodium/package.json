@@ -1,7 +1,7 @@
 {
-  "name": "@holochain/dpki-lite",
+  "name": "@holochain/mosodium",
   "version": "0.0.1",
-  "description": "holochain key management libraries and utilities",
+  "description": "light wrapper around sodium-native",
   "main": "lib/index.js",
   "scripts": {
     "lint": "standard --fix 'lib/**/*.js' 'bin/**/*.js'",
@@ -13,7 +13,6 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "chai": "^4.2.0",
-    "libsodium-wrappers": "^0.7.4",
     "mocha": "^5.2.0",
     "nyc": "^12.0.2",
     "opn": "^5.4.0",
@@ -21,9 +20,8 @@
     "standard": "^12.0.1"
   },
   "dependencies": {
-    "bip39": "^2.5.0",
-    "msgpack-lite": "^0.1.26",
-    "prompt": "^1.0.0"
+    "libsodium-wrappers": "^0.7.4",
+    "sodium-native": "^2.2.5"
   },
   "standard": {
     "env": {
@@ -47,8 +45,13 @@
     ]
   },
   "generate-docs": {
-    "util": "lib/util.js",
-    "keypair": "lib/keypair.js",
-    "seed": "lib/seed.js"
+    "random": "lib/random.js",
+    "secbuf": "lib/secbuf.js",
+    "hash": "lib/hash.js",
+    "pwhash": "lib/pwhash.js",
+    "kx": "lib/kx.js",
+    "kdf": "lib/kdf.js",
+    "sign": "lib/sign.js",
+    "aead": "lib/aead.js"
   }
 }

@@ -1,4 +1,4 @@
-// exports.Keypair = require('./keypair').Keypair
+exports.Keypair = require('./keypair').Keypair
 
 // const seed = require('./seed')
 // for (let key in seed) {
