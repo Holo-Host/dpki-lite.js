@@ -1,0 +1,23 @@
+{
+  "name": "n3h",
+  "version": "0.0.1",
+  "description": "this top-level lerna project is just tools for helping manage the monorepo",
+  "scripts": {
+    "tools-lint": "standard --fix 'tools/lib/**/*.js' 'tools/bin/**/*.js'",
+    "docs": "node tools/bin/monoman.js docs",
+    "new": "node tools/bin/monoman.js new",
+    "test": "npm run tools-lint && lerna run test && npm run docs",
+    "clean": "lerna clean",
+    "bootstrap": "lerna bootstrap --hoist --no-ci"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "handlebars": "^4.0.12",
+    "jsdoc-to-markdown": "^4.0.1",
+    "lerna": "^3.5.1",
+    "libsodium-wrappers": "^0.7.4",
+    "prompt": "^1.0.0",
+    "standard": "^12.0.1"
+  },
+  "dependencies": {}
+}
