@@ -12,43 +12,30 @@ can optionally be initialized without the private halves of the pairs
 **Kind**: global class  
 
 * [Keypair](#Keypair)
+    * [new Keypair(opt)](#new_Keypair_new)
     * _instance_
-        * [.init(opt)](#Keypair+init)
-        * [.getBundle(passphrase, hint)](#Keypair+getBundle)
         * [.getId()](#Keypair+getId) ⇒ <code>string</code>
         * [.sign(data)](#Keypair+sign)
         * [.verify(signature, data)](#Keypair+verify)
         * [.encrypt(recipientIds, data)](#Keypair+encrypt) ⇒ <code>Buffer</code>
         * [.decrypt(sourceId, cipher)](#Keypair+decrypt) ⇒ <code>Buffer</code>
+        * [.getBundle(passphrase, hint)](#Keypair+getBundle)
     * _static_
         * [.newFromSeed(seed)](#Keypair.newFromSeed)
         * [.fromBundle(bundle, passphrase)](#Keypair.fromBundle)
 
-<a name="Keypair+init"></a>
+<a name="new_Keypair_new"></a>
 
-### keypair.init(opt)
+### new Keypair(opt)
 keypair constructor (you probably want one of the static functions above)
 
-**Kind**: instance method of [<code>Keypair</code>](#Keypair)  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | opt | <code>object</code> |  |
 | opt.pubkeys | <code>string</code> | the keypair identity string |
-| [opt.signPriv] | <code>SecBuf</code> | private signature key |
-| [opt.encPriv] | <code>SecBuf</code> | private encryption key |
-
-<a name="Keypair+getBundle"></a>
-
-### keypair.getBundle(passphrase, hint)
-generate an encrypted persistence bundle
-
-**Kind**: instance method of [<code>Keypair</code>](#Keypair)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| passphrase | <code>string</code> | the encryption passphrase |
-| hint | <code>string</code> | additional info / description for the bundle |
+| [opt.signPriv] | <code>Buffer</code> | private signature key |
+| [opt.encPriv] | <code>Buffer</code> | private encryption key |
 
 <a name="Keypair+getId"></a>
 
@@ -104,6 +91,18 @@ attempt to decrypt the cipher buffer (assuming it was targeting us)
 | sourceId | <code>string</code> | identifier string of who encrypted this data |
 | cipher | <code>Buffer</code> | the encrypted data |
 
+<a name="Keypair+getBundle"></a>
+
+### keypair.getBundle(passphrase, hint)
+generate an encrypted persistence bundle
+
+**Kind**: instance method of [<code>Keypair</code>](#Keypair)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| passphrase | <code>string</code> | the encryption passphrase |
+| hint | <code>string</code> | additional info / description for the bundle |
+
 <a name="Keypair.newFromSeed"></a>
 
 ### Keypair.newFromSeed(seed)
@@ -113,7 +112,7 @@ derive the pairs from a 32 byte seed buffer
 
 | Param | Type | Description |
 | --- | --- | --- |
-| seed | <code>SecBuf</code> | the seed buffer |
+| seed | <code>Buffer</code> | the seed buffer |
 
 <a name="Keypair.fromBundle"></a>
 

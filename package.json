@@ -1,5 +1,5 @@
 {
-  "name": "n3h",
+  "name": "lite-client-libs",
   "version": "0.0.1",
   "description": "this top-level lerna project is just tools for helping manage the monorepo",
   "scripts": {

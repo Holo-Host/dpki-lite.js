@@ -1,10 +1,12 @@
 const _sodium = require('libsodium-wrappers')
 const msgpack = require('msgpack-lite')
 
+const NONCEBYTES = 24
+const SALTBYTES = 16
 
-async function libsodium(){
-  await _sodium.ready;
-  return _sodium;
+async function libsodium() {
+  await _sodium.ready
+  return _sodium
 }
 exports.libsodium = libsodium
 
@@ -15,17 +17,16 @@ exports.libsodium = libsodium
  * @param {Buffer} encPub - encryption public key
  * @return {string} - the base64url encoded identity (with checksum)
  */
- async function encodeId (signPub, encPub) {
+async function encodeId(signPub, encPub) {
   const sodium = await libsodium()
-  try{
+  try {
     // console.log(sodium._sodium_init());
     // const hash = sodium.crypto_hash_sha256(Buffer.concat([signPub, encPub]))
-    return sodium.to_base64(Buffer.concat([signPub, encPub]));
-  }catch(e){
-    console.log("ERROR at encodeId: ",e);
+    return sodium.to_base64(Buffer.concat([signPub, encPub]))
+  } catch (e) {
+    console.log('ERROR at encodeId: ', e)
   }
-
-  }
+}
 
 exports.encodeId = encodeId
 
@@ -35,7 +36,7 @@ exports.encodeId = encodeId
  * @param {string} id - the base64url encoded identity string
  * @return {object} - { signPub: Buffer, encPub: Buffer }
  */
-async function decodeId (id) {
+async function decodeId(id) {
   const sodium = await libsodium()
 
   const tmp = sodium.from_base64(id)
@@ -54,32 +55,28 @@ exports.decodeId = decodeId
  * @param {Buffer} data - the binary data to verify
  * @param {string} signerId - the signer's public identity string
  */
-async function verify (signature, data, signerId) {
+async function verify(signature, data, signerId) {
   const sodium = await libsodium()
-  const { signPub } = await decodeId(signerId)
+  const {
+    signPub
+  } = await decodeId(signerId)
   return sodium.crypto_sign_verify_detached(signature, data, signPub)
 }
 exports.verify = verify
 
-// allow overrides for unit-testing purposes
-// exports.pwhashOpslimit = sodium.crypto_pwhash_OPSLIMIT_SENSITIVE
-// exports.pwhashMemlimit = sodium.crypto_pwhash_MEMLIMIT_SENSITIVE
-
 /**
  * simplify the api for generating a password hash with our set parameters
- * @param {SecBuf} pass - the password buffer to hash
+ * @param {Buffer} pass - the password buffer to hash
  * @param {Buffer} [salt] - if specified, hash with this salt (otherwise random)
- * @return {object} - { salt: Buffer, hash: SecBuf }
+ * @return {object} - { salt: Buffer, hash: Buffer }
  */
- // TODO: update the package
-const SALTBYTES = 16;
-async function pwHash (pass, salt) {
+async function pwHash(pass, salt) {
   const sodium = await libsodium()
   const opt = {
-    opslimit: sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,// 4, //exports.pwhashOpslimit,
-    memlimit: sodium.crypto_pwhash_MEMLIMIT_SENSITIVE,//1073741824,//exports.pwhashMemlimit,
-    algorithm: sodium.crypto_pwhash_ALG_ARGON2ID13,//2 //sodium.crypto_pwhash_ALG_ARGON2ID13
-    keyLength: 32//sodium.crypto_aead_xchacha20poly1305_ietf_keybytes
+    opslimit: sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,
+    memlimit: sodium.crypto_pwhash_MEMLIMIT_SENSITIVE,
+    algorithm: sodium.crypto_pwhash_ALG_ARGON2ID13,
+    keyLength: 32
   }
 
   if (salt) {
@@ -87,61 +84,38 @@ async function pwHash (pass, salt) {
   }
 
   if (!opt.salt) {
-    opt.salt = sodium.randombytes_buf(SALTBYTES);// random.bytes(SALTBYTES)
+    opt.salt = sodium.randombytes_buf(SALTBYTES)
   }
-  // console.log("opt:",opt);
   let derivedKey = await sodium.crypto_pwhash(
     opt.keyLength, pass, opt.salt,
     opt.opslimit, opt.memlimit, opt.algorithm)
-  return new Promise ((resolve,reject) =>{
-    resolve ({
-    salt:opt.salt,
-    hash:derivedKey
+  return new Promise((resolve, reject) => {
+    resolve({
+      salt: opt.salt,
+      hash: derivedKey
+    })
   })
-})
-  // return new Promise((resolve, reject) => {
-  //   try {
-  //     sodium.crypto_pwhash(
-  //     opt.keyLength, pass, opt.salt,
-  //     opt.opslimit, opt.memlimit, opt.algorithm,
-  //       (err) => {
-  //         try {
-  //           finalize()
-  //           if (err) return reject(err)
-  //           resolve({
-  //             salt: opt.salt,
-  //             hash
-  //           })
-  //         } catch (e) {
-  //           reject(e)
-  //         }
-  //       })
-  //   } catch (e) {
-  //     reject(e)
-  //   }
-  // })
-
-
 }
 exports.pwHash = pwHash
 
-const NONCEBYTES = 24;
 /**
  * Helper for encrypting a buffer with a pwhash-ed passphrase
  * @param {Buffer} data
  * @param {string} passphrase
  * @return {Buffer} - the encrypted data
  */
-async function pwEnc (data, passphrase,adata) {
+async function pwEnc(data, passphrase, adata) {
   const sodium = await libsodium()
-  const { salt, hash: secret } = await pwHash(passphrase)
-  // const { nonce, cipher } = sodium.aead.enc(data, secret)
+  const {
+    salt,
+    hash: secret
+  } = await pwHash(passphrase)
   const nonce = sodium.randombytes_buf(NONCEBYTES)
-  let r = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt( data, adata || null, null, nonce, secret)
+  let ciphertext = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(data, adata || null, null, nonce, secret)
   return msgpack.encode({
     salt,
     nonce,
-    cipher:r.ciphertext
+    cipher: ciphertext
   })
 }
 exports.pwEnc = pwEnc
@@ -152,13 +126,14 @@ exports.pwEnc = pwEnc
  * @param {string} passphrase
  * @return {Buffer} - the decrypted data
  */
-async function pwDec (data, passphrase,adata) {
+async function pwDec(data, passphrase, adata) {
   const sodium = await libsodium()
   data = msgpack.decode(data)
-  const { hash: secret } = await pwHash(passphrase, data.salt)
-  // return sodium.aead.dec(data.nonce, data.cipher, secret)
+  const {
+    hash: secret
+  } = await pwHash(passphrase, data.salt)
   return sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
-       null, data.cipher, adata || null, data.nonce, secret)
+    null, data.cipher, adata || null, data.nonce, secret)
 }
 
 exports.pwDec = pwDec
@@ -171,7 +146,7 @@ exports.pwDec = pwDec
  * @param {number} count - number of random bytes to output
  * @return {Buffer}
  */
-async function randomBytes (count) {
+async function randomBytes(count) {
   const sodium = await libsodium()
   return sodium.randombytes_buf(count)
 }

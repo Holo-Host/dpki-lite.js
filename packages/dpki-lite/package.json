@@ -1,7 +1,7 @@
 {
   "name": "@holochain/dpki-lite",
   "version": "0.0.1",
-  "description": "holochain key management libraries and utilities",
+  "description": "The browser-side crypto for holo light clients.",
   "main": "lib/index.js",
   "scripts": {
     "lint": "standard --fix 'lib/**/*.js' 'bin/**/*.js'",
