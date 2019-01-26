@@ -9,6 +9,7 @@ The client-side crypto will need to do a SENSITIVE mem and op pwhash with the sa
 As far as client side libsodium crypto libs, this is the one I've had my eye on, since it has all the apis: https://www.npmjs.com/package/libsodium-wrappers. We don't need to do all the SecBuf stuff for this version, since we cannot memprotect memory in the browser anyway.
 
 **Who would be calling this lib?**
+
 The holo.js code would be doing this. it'll sort of be up to the UI designer for the particular app, but at some point if the user undertakes an action, and does not yet have a source chain, the app dev will trigger a holo.js api that will set up session hosts through the tranche service, and the user will need to generate private keys to set up core apps, etc, on that session host.
 
 ### Usage
