@@ -61,79 +61,107 @@ async function verify (signature, data, signerId) {
 }
 exports.verify = verify
 
-// // allow overrides for unit-testing purposes
+// allow overrides for unit-testing purposes
 // exports.pwhashOpslimit = sodium.crypto_pwhash_OPSLIMIT_SENSITIVE
 // exports.pwhashMemlimit = sodium.crypto_pwhash_MEMLIMIT_SENSITIVE
-//
-// /**
-//  * simplify the api for generating a password hash with our set parameters
-//  * @param {SecBuf} pass - the password buffer to hash
-//  * @param {Buffer} [salt] - if specified, hash with this salt (otherwise random)
-//  * @return {object} - { salt: Buffer, hash: SecBuf }
-//  */
-// async function pwHash (pass, salt) {
-//   const opt = {
-//     opslimit: exports.pwhashOpslimit,
-//     memlimit: exports.pwhashMemlimit,
-//     algorithm: sodium.crypto_pwhash_ALG_ARGON2ID13
-//   }
-//
-//   if (salt) {
-//     opt.salt = salt
-//   }
-//
-//   if (!opt.salt) {
-//     opt.salt = sodium.randombytes_buf(SALTBYTES);// random.bytes(SALTBYTES)
-//   }
-//
-//   return new Promise((resolve, reject) => {
-//       let r = sodium.crypto_pwhash_async(
-//         keyLength, password._, opts.salt,
-//         opts.opslimit, opts.memlimit, opts.algorithm)
-//       return {
-//         salt:opt.salt,
-//         hash:r.derivedKey
-//       }
-//   })
-// }
-//
-// exports.pwHash = pwHash
-// const NONCEBYTES = 32;
-// /**
-//  * Helper for encrypting a buffer with a pwhash-ed passphrase
-//  * @param {Buffer} data
-//  * @param {string} passphrase
-//  * @return {Buffer} - the encrypted data
-//  */
-// async function pwEnc (data, passphrase) {
-//   const { salt, hash: secret } = await pwHash(passphrase)
-//   const { nonce, cipher } = sodium.aead.enc(data, secret)
-//   const nonce = sodium.randombytes_buf(NONCEBYTES)
-//   let r = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt( message, adata || null, null, nonce, secret)
-//   return msgpack.encode({
-//     salt,
-//     nonce,
-//     cipher:r.ciphertext
-//   })
-// }
-//
-// exports.pwEnc = pwEnc
-//
-// /**
-//  * Helper for decrypting a buffer with a pwhash-ed passphrase
-//  * @param {Buffer} data
-//  * @param {string} passphrase
-//  * @return {Buffer} - the decrypted data
-//  */
-// async function pwDec (data, passphrase) {
-//   data = msgpack.decode(data)
-//   const { hash: secret } = await pwHash(passphrase, data.salt)
-//   // return sodium.aead.dec(data.nonce, data.cipher, secret)
-//   return sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
-//        null, data.cipher, adata || null, data.nonce, secret)
-// }
-//
-// exports.pwDec = pwDec
+
+/**
+ * simplify the api for generating a password hash with our set parameters
+ * @param {SecBuf} pass - the password buffer to hash
+ * @param {Buffer} [salt] - if specified, hash with this salt (otherwise random)
+ * @return {object} - { salt: Buffer, hash: SecBuf }
+ */
+ // TODO: update the package
+const SALTBYTES = 16;
+async function pwHash (pass, salt) {
+  const sodium = await libsodium()
+  const opt = {
+    opslimit: sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,// 4, //exports.pwhashOpslimit,
+    memlimit: sodium.crypto_pwhash_MEMLIMIT_SENSITIVE,//1073741824,//exports.pwhashMemlimit,
+    algorithm: sodium.crypto_pwhash_ALG_ARGON2ID13,//2 //sodium.crypto_pwhash_ALG_ARGON2ID13
+    keyLength: 32//sodium.crypto_aead_xchacha20poly1305_ietf_keybytes
+  }
+
+  if (salt) {
+    opt.salt = salt
+  }
+
+  if (!opt.salt) {
+    opt.salt = sodium.randombytes_buf(SALTBYTES);// random.bytes(SALTBYTES)
+  }
+  // console.log("opt:",opt);
+  let derivedKey = await sodium.crypto_pwhash(
+    opt.keyLength, pass, opt.salt,
+    opt.opslimit, opt.memlimit, opt.algorithm)
+  return new Promise ((resolve,reject) =>{
+    resolve ({
+    salt:opt.salt,
+    hash:derivedKey
+  })
+})
+  // return new Promise((resolve, reject) => {
+  //   try {
+  //     sodium.crypto_pwhash(
+  //     opt.keyLength, pass, opt.salt,
+  //     opt.opslimit, opt.memlimit, opt.algorithm,
+  //       (err) => {
+  //         try {
+  //           finalize()
+  //           if (err) return reject(err)
+  //           resolve({
+  //             salt: opt.salt,
+  //             hash
+  //           })
+  //         } catch (e) {
+  //           reject(e)
+  //         }
+  //       })
+  //   } catch (e) {
+  //     reject(e)
+  //   }
+  // })
+
+
+}
+exports.pwHash = pwHash
+
+const NONCEBYTES = 24;
+/**
+ * Helper for encrypting a buffer with a pwhash-ed passphrase
+ * @param {Buffer} data
+ * @param {string} passphrase
+ * @return {Buffer} - the encrypted data
+ */
+async function pwEnc (data, passphrase,adata) {
+  const sodium = await libsodium()
+  const { salt, hash: secret } = await pwHash(passphrase)
+  // const { nonce, cipher } = sodium.aead.enc(data, secret)
+  const nonce = sodium.randombytes_buf(NONCEBYTES)
+  let r = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt( data, adata || null, null, nonce, secret)
+  return msgpack.encode({
+    salt,
+    nonce,
+    cipher:r.ciphertext
+  })
+}
+exports.pwEnc = pwEnc
+
+/**
+ * Helper for decrypting a buffer with a pwhash-ed passphrase
+ * @param {Buffer} data
+ * @param {string} passphrase
+ * @return {Buffer} - the decrypted data
+ */
+async function pwDec (data, passphrase,adata) {
+  const sodium = await libsodium()
+  data = msgpack.decode(data)
+  const { hash: secret } = await pwHash(passphrase, data.salt)
+  // return sodium.aead.dec(data.nonce, data.cipher, secret)
+  return sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
+       null, data.cipher, adata || null, data.nonce, secret)
+}
+
+exports.pwDec = pwDec
 
 /**
  * Output `count` random bytes

@@ -128,16 +128,28 @@ describe('keypair Suite', () => {
     throw new Error('expected exception, got success')
   })
 
-  // it('should bundle / restore', async () => {
-  //   const b = await pair0.getBundle(mosodium.SecBuf.from(Buffer.from('hello')), 'hola')
-  //   expect(b.hint).equals('hola')
-  //   expect(b.type).equals('hcKeypair')
-  //   const kp2 = await Keypair.fromBundle(
-  //     b, mosodium.SecBuf.from(Buffer.from('hello')))
-  //   expect(kp2.getId()).equals(pair0.getId())
-  //   await kp2.destroy()
-  // })
-  //
+  it('should bundle / restore', async () => {
+    //  const b = await pair0.getBundle(Buffer.from('hello'), 'hola')
+    // b.on('change', () => done())
+
+
+   pair0.getBundle(Buffer.from('hello'), 'hola')
+      .then((b) => {
+        expect(b.hint).equals('hola')
+        expect(b.type).equals('hcKeypair')
+      })
+      .catch(err => {
+        console.log("Error", err);
+      })
+    // console.log("---",b);
+    // expect(b.hint).equals('hola')
+    // expect(b.type).equals('hcKeypair')
+    // const kp2 = await Keypair.fromBundle(
+    //   b, Buffer.from('hello'))
+    // expect(kp2.getId()).equals(pair0.getId())
+    // await kp2.destroy()
+  })
+
   // it('should throw on no bundle hint', async () => {
   //   try {
   //     await pair0.getBundle(mosodium.SecBuf.from(Buffer.from('hello')))

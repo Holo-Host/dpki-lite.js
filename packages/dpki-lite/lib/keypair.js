@@ -156,12 +156,10 @@ async decrypt (sId, cipher,adata) {
   // and the recipient (us) the "client"
   // XXX cache?
   const { sharedRx: rx } = sodium.crypto_kx_client_session_keys(this._encPub, this._encPriv, sourceId)
-  console.log("Cipher: ",cipher);
   let symSecret = null
   for (let i = 0; i < cipher.length - 2; i += 2) {
     const n = cipher[i]
     const c = cipher[i + 1]
-    console.log("loop: ",i);
     try {
       symSecret =  sodium.crypto_aead_xchacha20poly1305_ietf_decrypt( null, c, adata || null, n, rx)
     } catch (e) { /* pass */}
@@ -172,6 +170,28 @@ async decrypt (sId, cipher,adata) {
   }
   return sodium.to_string(sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
     null,cipher[cipher.length - 1],adata||null, cipher[cipher.length - 2], symSecret))
+  }
+
+  /**
+ * generate an encrypted persistence bundle
+ * @param {string} passphrase - the encryption passphrase
+ * @param {string} hint - additional info / description for the bundle
+ */
+  async getBundle (passphrase, hint) {
+    if (typeof hint !== 'string') {
+      throw new Error('hint must be a string')
+    }
+
+    const out = {
+      type: 'hcKeypair',
+      hint,
+      data: (await util.pwEnc(msgpack.encode([
+        this._signPub, this._encPub,
+        this._signPriv._, this._encPriv._
+      ]), passphrase))
+    }
+    // console.log("Out: ",out);
+    return out
   }
 }
 exports.Keypair = Keypair
