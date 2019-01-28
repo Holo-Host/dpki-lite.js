@@ -81,7 +81,7 @@ class Seed {
    */
   // TODO: not tested
   getMnemonic () {
-    return bip39.entropyToMnemonic(this._seed.toString('hex'))
+    return bip39.entropyToMnemonic(Buffer.from(this._seed).toString('hex'))
   }
 }
 
