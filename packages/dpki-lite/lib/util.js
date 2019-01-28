@@ -4,7 +4,7 @@ const msgpack = require('msgpack-lite')
 const NONCEBYTES = 24
 const SALTBYTES = 16
 
-async function libsodium() {
+async function libsodium () {
   await _sodium.ready
   return _sodium
 }
@@ -17,7 +17,7 @@ exports.libsodium = libsodium
  * @param {Buffer} encPub - encryption public key
  * @return {string} - the base64url encoded identity (with checksum)
  */
-async function encodeId(signPub, encPub) {
+async function encodeId (signPub, encPub) {
   const sodium = await libsodium()
   try {
     // console.log(sodium._sodium_init());
@@ -36,7 +36,7 @@ exports.encodeId = encodeId
  * @param {string} id - the base64url encoded identity string
  * @return {object} - { signPub: Buffer, encPub: Buffer }
  */
-async function decodeId(id) {
+async function decodeId (id) {
   const sodium = await libsodium()
 
   const tmp = sodium.from_base64(id)
@@ -55,7 +55,7 @@ exports.decodeId = decodeId
  * @param {Buffer} data - the binary data to verify
  * @param {string} signerId - the signer's public identity string
  */
-async function verify(signature, data, signerId) {
+async function verify (signature, data, signerId) {
   const sodium = await libsodium()
   const {
     signPub
@@ -70,7 +70,7 @@ exports.verify = verify
  * @param {Buffer} [salt] - if specified, hash with this salt (otherwise random)
  * @return {object} - { salt: Buffer, hash: Buffer }
  */
-async function pwHash(pass, salt) {
+async function pwHash (pass, salt) {
   const sodium = await libsodium()
   const opt = {
     opslimit: sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,
@@ -104,7 +104,7 @@ exports.pwHash = pwHash
  * @param {string} passphrase
  * @return {Buffer} - the encrypted data
  */
-async function pwEnc(data, passphrase, adata) {
+async function pwEnc (data, passphrase, adata) {
   const sodium = await libsodium()
   const {
     salt,
@@ -126,7 +126,7 @@ exports.pwEnc = pwEnc
  * @param {string} passphrase
  * @return {Buffer} - the decrypted data
  */
-async function pwDec(data, passphrase, adata) {
+async function pwDec (data, passphrase, adata) {
   const sodium = await libsodium()
   data = msgpack.decode(data)
   const {
@@ -146,7 +146,7 @@ exports.pwDec = pwDec
  * @param {number} count - number of random bytes to output
  * @return {Buffer}
  */
-async function randomBytes(count) {
+async function randomBytes (count) {
   const sodium = await libsodium()
   return sodium.randombytes_buf(count)
 }
