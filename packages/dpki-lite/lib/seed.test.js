@@ -1,8 +1,15 @@
-const { expect } = require('chai')
+const {
+  expect
+} = require('chai')
 
 const util = require('./util')
 
-const { Seed, RootSeed, DeviceSeed, DevicePinSeed } = require('./index')
+const {
+  Seed,
+  RootSeed,
+  DeviceSeed,
+  DevicePinSeed
+} = require('./index')
 
 describe('seed Suite', async () => {
   it('should initialize with a Buffer', async () => {

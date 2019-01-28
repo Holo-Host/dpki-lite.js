@@ -1,6 +1,8 @@
 const bip39 = require('bip39')
 
-const { Keypair } = require('./keypair')
+const {
+  Keypair
+} = require('./keypair')
 const util = require('./util')
 
 /**
@@ -12,7 +14,7 @@ class Seed {
    * @param {string} type - the persistence bundle type
    * @param {Buffer|string} seed - the private seed data (as a buffer or mnemonic)
    */
-  constructor (type, seed) {
+  constructor(type, seed) {
     if (typeof type !== 'string') {
       throw new Error('type must be specified for bundling')
     }
@@ -39,7 +41,7 @@ class Seed {
    * @param {string} passphrase - the decryption passphrase
    * @return {RootSeed|DeviceSeed|DevicePinSeed}
    */
-  static async fromBundle (bundle, passphrase) {
+  static async fromBundle(bundle, passphrase) {
     let Class = null
     switch (bundle.type) {
       case 'hcDeviceSeed':
@@ -62,7 +64,7 @@ class Seed {
    * @param {string} passphrase - the encryption passphrase
    * @param {string} hint - additional info / description for persistence
    */
-  async getBundle (passphrase, hint) {
+  async getBundle(passphrase, hint) {
     if (typeof hint !== 'string') {
       throw new Error('hint must be a string')
     }
@@ -80,7 +82,7 @@ class Seed {
    * generate a bip39 mnemonic based on the private seed entroyp
    */
   // TODO: not tested
-  getMnemonic () {
+  getMnemonic() {
     return bip39.entropyToMnemonic(Buffer.from(this._seed).toString('hex'))
   }
 }
@@ -94,7 +96,7 @@ class DevicePinSeed extends Seed {
   /**
    * delegate to base class
    */
-  constructor (seed) {
+  constructor(seed) {
     super('hcDevicePinSeed', seed)
   }
 
@@ -103,7 +105,7 @@ class DevicePinSeed extends Seed {
    * @param {number} index
    * @return {Keypair}
    */
-  async getApplicationKeypair (index) {
+  async getApplicationKeypair(index) {
     if (typeof index !== 'number' || parseInt(index, 10) !== index || index < 1) {
       throw new Error('invalid index')
     }
@@ -123,7 +125,7 @@ class DeviceSeed extends Seed {
   /**
    * delegate to base class
    */
-  constructor (seed) {
+  constructor(seed) {
     super('hcDeviceSeed', seed)
   }
 
@@ -132,7 +134,7 @@ class DeviceSeed extends Seed {
    * @param {string} pin - should be >= 4 characters 1-9
    * @return {DevicePinSeed}
    */
-  async getDevicePinSeed (pin) {
+  async getDevicePinSeed(pin) {
     if (typeof pin !== 'string' || pin.length < 4) {
       throw new Error('pin must be a string >= 4 characters')
     }
@@ -150,18 +152,18 @@ exports.DeviceSeed = DeviceSeed
  */
 class RootSeed extends Seed {
   /**
-   * Get a new, completely random root seed
+   * delegate to base class
    */
-  static async newRandom () {
-    const seed = await util.randomBytes(32)
-    return new RootSeed(seed)
+  constructor(seed) {
+    super('hcRootSeed', seed)
   }
 
   /**
-   * delegate to base class
+   * Get a new, completely random root seed
    */
-  constructor (seed) {
-    return super('hcRootSeed', seed)
+  static async newRandom() {
+    const seed = await util.randomBytes(32)
+    return new RootSeed(seed)
   }
 
   /**
@@ -169,7 +171,7 @@ class RootSeed extends Seed {
    * @param {number} index
    * @return {DeviceSeed}
    */
-  async getDeviceSeed (index) {
+  async getDeviceSeed(index) {
     if (typeof index !== 'number' || parseInt(index, 10) !== index || index < 1) {
       throw new Error('invalid index')
     }

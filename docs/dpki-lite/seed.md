@@ -23,24 +23,23 @@ Superclass of all other seed types
 **Kind**: global class  
 
 * [Seed](#Seed)
+    * [new Seed(type, seed)](#new_Seed_new)
     * _instance_
-        * [.init(type, seed)](#Seed+init)
         * [.getBundle(passphrase, hint)](#Seed+getBundle)
         * [.getMnemonic()](#Seed+getMnemonic)
     * _static_
         * [.fromBundle(bundle, passphrase)](#Seed.fromBundle) ⇒ [<code>RootSeed</code>](#RootSeed) \| [<code>DeviceSeed</code>](#DeviceSeed) \| [<code>DevicePinSeed</code>](#DevicePinSeed)
 
-<a name="Seed+init"></a>
+<a name="new_Seed_new"></a>
 
-### seed.init(type, seed)
+### new Seed(type, seed)
 Initialize this seed class with persistence bundle type and private seed
 
-**Kind**: instance method of [<code>Seed</code>](#Seed)  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | type | <code>string</code> | the persistence bundle type |
-| seed | <code>SecBuf</code> \| <code>string</code> | the private seed data (as a buffer or mnemonic) |
+| seed | <code>Buffer</code> \| <code>string</code> | the private seed data (as a buffer or mnemonic) |
 
 <a name="Seed+getBundle"></a>
 
@@ -80,15 +79,14 @@ This is a device seed that has been PIN derived
 **Kind**: global class  
 
 * [DevicePinSeed](#DevicePinSeed)
-    * [.init()](#DevicePinSeed+init)
+    * [new DevicePinSeed()](#new_DevicePinSeed_new)
     * [.getApplicationKeypair(index)](#DevicePinSeed+getApplicationKeypair) ⇒ <code>Keypair</code>
 
-<a name="DevicePinSeed+init"></a>
+<a name="new_DevicePinSeed_new"></a>
 
-### devicePinSeed.init()
+### new DevicePinSeed()
 delegate to base class
 
-**Kind**: instance method of [<code>DevicePinSeed</code>](#DevicePinSeed)  
 <a name="DevicePinSeed+getApplicationKeypair"></a>
 
 ### devicePinSeed.getApplicationKeypair(index) ⇒ <code>Keypair</code>
@@ -108,15 +106,14 @@ This is a device seed that is waiting for PIN derivation
 **Kind**: global class  
 
 * [DeviceSeed](#DeviceSeed)
-    * [.init()](#DeviceSeed+init)
+    * [new DeviceSeed()](#new_DeviceSeed_new)
     * [.getDevicePinSeed(pin)](#DeviceSeed+getDevicePinSeed) ⇒ [<code>DevicePinSeed</code>](#DevicePinSeed)
 
-<a name="DeviceSeed+init"></a>
+<a name="new_DeviceSeed_new"></a>
 
-### deviceSeed.init()
+### new DeviceSeed()
 delegate to base class
 
-**Kind**: instance method of [<code>DeviceSeed</code>](#DeviceSeed)  
 <a name="DeviceSeed+getDevicePinSeed"></a>
 
 ### deviceSeed.getDevicePinSeed(pin) ⇒ [<code>DevicePinSeed</code>](#DevicePinSeed)
@@ -136,18 +133,17 @@ This root seed should be pure entropy
 **Kind**: global class  
 
 * [RootSeed](#RootSeed)
+    * [new RootSeed()](#new_RootSeed_new)
     * _instance_
-        * [.init()](#RootSeed+init)
         * [.getDeviceSeed(index)](#RootSeed+getDeviceSeed) ⇒ [<code>DeviceSeed</code>](#DeviceSeed)
     * _static_
         * [.newRandom()](#RootSeed.newRandom)
 
-<a name="RootSeed+init"></a>
+<a name="new_RootSeed_new"></a>
 
-### rootSeed.init()
+### new RootSeed()
 delegate to base class
 
-**Kind**: instance method of [<code>RootSeed</code>](#RootSeed)  
 <a name="RootSeed+getDeviceSeed"></a>
 
 ### rootSeed.getDeviceSeed(index) ⇒ [<code>DeviceSeed</code>](#DeviceSeed)

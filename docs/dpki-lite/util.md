@@ -21,6 +21,9 @@ break an identity string up into a pair of public keys</p>
 <dt><a href="#pwDec">pwDec(data, passphrase)</a> ⇒ <code>Buffer</code></dt>
 <dd><p>Helper for decrypting a buffer with a pwhash-ed passphrase</p>
 </dd>
+<dt><a href="#randomBytes">randomBytes(count)</a> ⇒ <code>Buffer</code></dt>
+<dd><p>Output <code>count</code> random bytes</p>
+</dd>
 </dl>
 
 <a name="encodeId"></a>
@@ -69,11 +72,11 @@ verify a signature given the original data, and the signer's identity string
 simplify the api for generating a password hash with our set parameters
 
 **Kind**: global function  
-**Returns**: <code>object</code> - - { salt: Buffer, hash: SecBuf }  
+**Returns**: <code>object</code> - - { salt: Buffer, hash: Buffer }  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pass | <code>SecBuf</code> | the password buffer to hash |
+| pass | <code>Buffer</code> | the password buffer to hash |
 | [salt] | <code>Buffer</code> | if specified, hash with this salt (otherwise random) |
 
 <a name="pwEnc"></a>
@@ -102,3 +105,18 @@ Helper for decrypting a buffer with a pwhash-ed passphrase
 | data | <code>Buffer</code> | 
 | passphrase | <code>string</code> | 
 
+<a name="randomBytes"></a>
+
+## randomBytes(count) ⇒ <code>Buffer</code>
+Output `count` random bytes
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| count | <code>number</code> | number of random bytes to output |
+
+**Example**  
+```js
+const bytes = sodium.random.bytes(32)
+```

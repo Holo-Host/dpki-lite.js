@@ -20,7 +20,7 @@ class Keypair {
    * @param {Buffer} [opt.signPriv] - private signature key
    * @param {Buffer} [opt.encPriv] - private encryption key
    */
-  constructor (opt) {
+  constructor(opt) {
     if (
       typeof opt !== 'object' ||
       typeof opt.pubkeys !== 'string'
@@ -62,7 +62,7 @@ class Keypair {
    * derive the pairs from a 32 byte seed buffer
    * @param {Buffer} seed - the seed buffer
    */
-  static async newFromSeed (seed) {
+  static async newFromSeed(seed) {
     const sodium = await util.libsodium()
     const {
       publicKey: signPub,
@@ -87,7 +87,7 @@ class Keypair {
    * get the keypair identifier string
    * @return {string}
    */
-  getId () {
+  getId() {
     return this._pubkeys
   }
 
@@ -95,7 +95,7 @@ class Keypair {
    * sign some arbitrary data with the signing private key
    * @param {Buffer} data - the data to sign
    */
-  async sign (data) {
+  async sign(data) {
     if (!this._signPriv) {
       throw new Error('no signPriv - cannot sign data')
     }
@@ -108,7 +108,7 @@ class Keypair {
    * @param {Buffer} signature
    * @param {Buffer} data
    */
-  async verify (signature, data) {
+  async verify(signature, data) {
     return util.verify(signature, data, this._pubkeys)
   }
 
@@ -118,7 +118,7 @@ class Keypair {
    * @param {Buffer} data - the data to encrypt
    * @return {Buffer}
    */
-  async encrypt (recipientIds, data, adata) {
+  async encrypt(recipientIds, data, adata) {
     const sodium = await util.libsodium()
 
     let symSecret = await util.randomBytes(32)
@@ -157,7 +157,7 @@ class Keypair {
    * @param {Buffer} cipher - the encrypted data
    * @return {Buffer} - the decrypted data
    */
-  async decrypt (sId, cipher, adata) {
+  async decrypt(sId, cipher, adata) {
     const sodium = await util.libsodium()
 
     cipher = msgpack.decode(cipher)
@@ -195,7 +195,7 @@ class Keypair {
    * @param {string} passphrase - the encryption passphrase
    * @param {string} hint - additional info / description for the bundle
    */
-  async getBundle (passphrase, hint) {
+  async getBundle(passphrase, hint) {
     if (typeof hint !== 'string') {
       throw new Error('hint must be a string')
     }
@@ -217,7 +217,7 @@ class Keypair {
    * @param {object} bundle - persistence info
    * @param {string} passphrase - decryption passphrase
    */
-  static async fromBundle (bundle, passphrase) {
+  static async fromBundle(bundle, passphrase) {
     bundle = msgpack.decode(await util.pwDec(bundle.data, passphrase))
     return new Keypair({
       pubkeys: await util.encodeId(bundle[0], bundle[1]),
