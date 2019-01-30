@@ -11,6 +11,24 @@ const {
   DevicePinSeed
 } = require('./index')
 
+describe('Root Seed Suite',async ()=>{
+
+  let root_seed="";
+  beforeEach(async () => {
+    seed = await util.randomBytes(32)
+  })
+
+  it('should initialize a RootSeed', async () => {
+    root_seed = new RootSeed(seed)
+    expect(root_seed.getMnemonic().split(/\s/g).length).equals(24)
+  })
+
+  it('should initialize DevicePinSeed from RootSeed', async () => {
+    const device_pin_seed = await root_seed.getDevicePinSeed("qwecarseivshiyvkgsuygcs")
+    expect(device_pin_seed.getMnemonic().split(/\s/g).length).equals(24)
+  })
+});
+
 describe('seed Suite', async () => {
   it('should initialize with a Buffer', async () => {
     const seed = await util.randomBytes(32)
@@ -28,7 +46,7 @@ describe('seed Suite', async () => {
 
     rs.getBundle(Buffer.from('hello'), 'hola').then((bundle) => {
       expect(bundle.hint).equals('hola')
-      expect(bundle.type).equals('hcRootSeed')
+      expect(bundle.type).equals('holoRootSeed')
 
       Seed.fromBundle(bundle, Buffer.from('hello'))
         .then((rs2) => {
@@ -69,7 +87,7 @@ describe('seed Suite', async () => {
 
   it('should throw on bad mnemonic string', async () => {
     try {
-      await new Seed('hcRootSeed')
+      await new Seed('holoRootSeed')
     } catch (e) {
       return
     }
@@ -78,7 +96,7 @@ describe('seed Suite', async () => {
 
   it('should throw on bad mnemonic string (validate)', async () => {
     try {
-      await new Seed('hcRootSeed', 'a a a a a a a a a a a a a a a a a a a a a a a a')
+      await new Seed('holoRootSeed', 'a a a a a a a a a a a a a a a a a a a a a a a a')
     } catch (e) {
       return
     }
@@ -103,25 +121,12 @@ describe('seed Suite', async () => {
     beforeEach(async () => {
       seed = await util.randomBytes(32)
       rs = await new RootSeed(seed)
-      ds = await rs.getDeviceSeed(384)
-    })
-
-    it('should derive device seed', async () => {
-      expect(ds.getMnemonic().split(/\s/g).length).equals(12)
+      dps = await rs.getDevicePinSeed("QvtsDcsvgbdfs")
     })
 
     it('should throw on bad device seed index', async () => {
       try {
-        await rs.getDeviceSeed('a')
-      } catch (e) {
-        return
-      }
-      throw new Error('expected exception, got success')
-    })
-
-    it('should throw on bad device seed pin', async () => {
-      try {
-        await ds.getDevicePinSeed('a')
+        await rs.getDevicePinSeed('a')
       } catch (e) {
         return
       }
@@ -130,7 +135,7 @@ describe('seed Suite', async () => {
 
     it('should derive application keypair', async () => {
       try {
-        ds.getDevicePinSeed('123456').then((dps) => {
+        rs.getDevicePinSeed('123456').then((dps) => {
           dps.getApplicationKeypair(1952).then((kp) => {
             expect(kp.getId().length).equals(86)
           })
@@ -140,54 +145,45 @@ describe('seed Suite', async () => {
       }
     })
 
-    it('should throw on bad application keypair index', async () => {
-      try {
-        await dps.getApplicationKeypair('a')
-      } catch (e) {
-        return
-      }
-      throw new Error('expected exception, got success')
-    })
-
     it('should bundle / restore', async () => {
-      const m = ds.getMnemonic()
-      ds.getBundle(Buffer.from('hello'), 'hola').then((b) => {
+      const m = rs.getMnemonic()
+      rs.getBundle(Buffer.from('hello'), 'hola').then((b) => {
         try {
           expect(b.hint).equals('hola')
-          expect(b.type).equals('hcDeviceSeed')
+          expect(b.type).equals('holoRootSeed')
           Seed.fromBundle(b, Buffer.from('hello')).then((ds2) => {
             try {
               expect(ds2.getMnemonic()).equals(m)
-              expect(ds2 instanceof DeviceSeed).equals(true)
+              expect(ds2 instanceof RootSeed).equals(true)
             } catch (e) {
-              console.log('ERROR')
+              console.log('ERROR fromBundle')
             }
           })
         } catch (e) {
-          console.log('ERROR')
+          console.log('ERROR getBundle')
         }
       })
     })
 
     it('should bundle / restore (pin seed)', async () => {
-      ds.getDevicePinSeed('123456').then((dps) => {
+      rs.getDevicePinSeed('Qawfaecrafe1234asdf5fas6').then((dps) => {
         try {
           const m = dps.getMnemonic()
 
           dps.getBundle(Buffer.from('hello'), 'hola').then((b) => {
             try {
               expect(b.hint).equals('hola')
-              expect(b.type).equals('hcDevicePinSeed')
+              expect(b.type).equals('holoDevicePinSeed')
               Seed.fromBundle(b, Buffer.from('hello')).then((dps2) => {
                 expect(dps2.getMnemonic()).equals(m)
                 expect(dps2 instanceof DevicePinSeed).equals(true)
               })
             } catch (e) {
-              console.log('ERROR')
+              console.log('ERROR DS')
             }
           })
         } catch (e) {
-          console.log('ERROR')
+          console.log('ERROR RS')
         }
       })
     })

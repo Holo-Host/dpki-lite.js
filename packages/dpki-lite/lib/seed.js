@@ -44,13 +44,13 @@ class Seed {
   static async fromBundle(bundle, passphrase) {
     let Class = null
     switch (bundle.type) {
-      case 'hcDeviceSeed':
+      case 'holoDeviceSeed':
         Class = DeviceSeed
         break
-      case 'hcDevicePinSeed':
+      case 'holoDevicePinSeed':
         Class = DevicePinSeed
         break
-      case 'hcRootSeed':
+      case 'holoRootSeed':
         Class = RootSeed
         break
       default:
@@ -97,7 +97,7 @@ class DevicePinSeed extends Seed {
    * delegate to base class
    */
   constructor(seed) {
-    super('hcDevicePinSeed', seed)
+    super('holoDevicePinSeed', seed)
   }
 
   /**
@@ -110,42 +110,13 @@ class DevicePinSeed extends Seed {
       throw new Error('invalid index')
     }
     const sodium = await util.libsodium()
-    const appSeed = sodium.crypto_kdf_derive_from_key(32, index, Buffer.from('HCAPPLIC'), this._seed)
+    const appSeed = sodium.crypto_kdf_derive_from_key(32, index, Buffer.from('HOLO_APPLIC'), this._seed)
 
     return Keypair.newFromSeed(appSeed)
   }
 }
 
 exports.DevicePinSeed = DevicePinSeed
-
-/**
- * This is a device seed that is waiting for PIN derivation
- */
-class DeviceSeed extends Seed {
-  /**
-   * delegate to base class
-   */
-  constructor(seed) {
-    super('hcDeviceSeed', seed)
-  }
-
-  /**
-   * generate a device pin seed by applying pwhash of pin with this seed as the salt
-   * @param {string} pin - should be >= 4 characters 1-9
-   * @return {DevicePinSeed}
-   */
-  async getDevicePinSeed(pin) {
-    if (typeof pin !== 'string' || pin.length < 4) {
-      throw new Error('pin must be a string >= 4 characters')
-    }
-    pin = Buffer.from(pin, 'utf8')
-    const seed = await util.pwHash(pin, this._seed)
-
-    return new DevicePinSeed(seed.hash)
-  }
-}
-
-exports.DeviceSeed = DeviceSeed
 
 /**
  * This root seed should be pure entropy
@@ -155,7 +126,7 @@ class RootSeed extends Seed {
    * delegate to base class
    */
   constructor(seed) {
-    super('hcRootSeed', seed)
+    super('holoRootSeed', seed)
   }
 
   /**
@@ -167,18 +138,21 @@ class RootSeed extends Seed {
   }
 
   /**
-   * generate a device seed given an index based on this seed
-   * @param {number} index
-   * @return {DeviceSeed}
+   * generate a device pin seed by applying pwhash of pin with this seed as the salt
+   * @param {string} pin - should be >= 4 characters 1-9
+   * @return {DevicePinSeed}
    */
-  async getDeviceSeed(index) {
-    if (typeof index !== 'number' || parseInt(index, 10) !== index || index < 1) {
-      throw new Error('invalid index')
+  async getDevicePinSeed(dna) {
+    if (typeof dna !== 'string' || dna.length < 4) {
+      throw new Error('dna must be a string >= 4 characters')
     }
-    const sodium = await util.libsodium()
-    const seed = sodium.crypto_kdf_derive_from_key(16, index, Buffer.from('HCDEVICE'), this._seed)
+    dna = Buffer.from(dna, 'utf8')
 
-    return new DeviceSeed(seed)
+    const sodium = await util.libsodium();
+
+    const dna_seed = sodium.crypto_hash_sha256(Buffer.concat([dna, this._seed]))
+
+    return new DevicePinSeed(dna_seed)
   }
 }
 

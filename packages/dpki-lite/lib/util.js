@@ -1,4 +1,4 @@
-const _sodium = require('libsodium-wrappers')
+const _sodium = require('libsodium-wrappers-sumo')
 const msgpack = require('msgpack-lite')
 
 const NONCEBYTES = 24
@@ -89,12 +89,10 @@ async function pwHash (pass, salt) {
   let derivedKey = await sodium.crypto_pwhash(
     opt.keyLength, pass, opt.salt,
     opt.opslimit, opt.memlimit, opt.algorithm)
-  return new Promise((resolve, reject) => {
-    resolve({
-      salt: opt.salt,
-      hash: derivedKey
-    })
-  })
+  return {
+    salt: opt.salt,
+    hash: derivedKey
+  }
 }
 exports.pwHash = pwHash
 
