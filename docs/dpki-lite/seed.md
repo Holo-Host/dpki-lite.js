@@ -7,9 +7,6 @@
 <dt><a href="#DevicePinSeed">DevicePinSeed</a></dt>
 <dd><p>This is a device seed that has been PIN derived</p>
 </dd>
-<dt><a href="#DeviceSeed">DeviceSeed</a></dt>
-<dd><p>This is a device seed that is waiting for PIN derivation</p>
-</dd>
 <dt><a href="#RootSeed">RootSeed</a></dt>
 <dd><p>This root seed should be pure entropy</p>
 </dd>
@@ -28,7 +25,7 @@ Superclass of all other seed types
         * [.getBundle(passphrase, hint)](#Seed+getBundle)
         * [.getMnemonic()](#Seed+getMnemonic)
     * _static_
-        * [.fromBundle(bundle, passphrase)](#Seed.fromBundle) ⇒ [<code>RootSeed</code>](#RootSeed) \| [<code>DeviceSeed</code>](#DeviceSeed) \| [<code>DevicePinSeed</code>](#DevicePinSeed)
+        * [.fromBundle(bundle, passphrase)](#Seed.fromBundle) ⇒ [<code>RootSeed</code>](#RootSeed) \| <code>DeviceSeed</code> \| [<code>DevicePinSeed</code>](#DevicePinSeed)
 
 <a name="new_Seed_new"></a>
 
@@ -61,7 +58,7 @@ generate a bip39 mnemonic based on the private seed entroyp
 **Kind**: instance method of [<code>Seed</code>](#Seed)  
 <a name="Seed.fromBundle"></a>
 
-### Seed.fromBundle(bundle, passphrase) ⇒ [<code>RootSeed</code>](#RootSeed) \| [<code>DeviceSeed</code>](#DeviceSeed) \| [<code>DevicePinSeed</code>](#DevicePinSeed)
+### Seed.fromBundle(bundle, passphrase) ⇒ [<code>RootSeed</code>](#RootSeed) \| <code>DeviceSeed</code> \| [<code>DevicePinSeed</code>](#DevicePinSeed)
 Get the proper seed type from a persistence bundle
 
 **Kind**: static method of [<code>Seed</code>](#Seed)  
@@ -98,33 +95,6 @@ generate an application keypair given an index based on this seed
 | --- | --- |
 | index | <code>number</code> | 
 
-<a name="DeviceSeed"></a>
-
-## DeviceSeed
-This is a device seed that is waiting for PIN derivation
-
-**Kind**: global class  
-
-* [DeviceSeed](#DeviceSeed)
-    * [new DeviceSeed()](#new_DeviceSeed_new)
-    * [.getDevicePinSeed(pin)](#DeviceSeed+getDevicePinSeed) ⇒ [<code>DevicePinSeed</code>](#DevicePinSeed)
-
-<a name="new_DeviceSeed_new"></a>
-
-### new DeviceSeed()
-delegate to base class
-
-<a name="DeviceSeed+getDevicePinSeed"></a>
-
-### deviceSeed.getDevicePinSeed(pin) ⇒ [<code>DevicePinSeed</code>](#DevicePinSeed)
-generate a device pin seed by applying pwhash of pin with this seed as the salt
-
-**Kind**: instance method of [<code>DeviceSeed</code>](#DeviceSeed)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| pin | <code>string</code> | should be >= 4 characters 1-9 |
-
 <a name="RootSeed"></a>
 
 ## RootSeed
@@ -135,7 +105,7 @@ This root seed should be pure entropy
 * [RootSeed](#RootSeed)
     * [new RootSeed()](#new_RootSeed_new)
     * _instance_
-        * [.getDeviceSeed(index)](#RootSeed+getDeviceSeed) ⇒ [<code>DeviceSeed</code>](#DeviceSeed)
+        * [.getDevicePinSeed(pin)](#RootSeed+getDevicePinSeed) ⇒ [<code>DevicePinSeed</code>](#DevicePinSeed)
     * _static_
         * [.newRandom()](#RootSeed.newRandom)
 
@@ -144,16 +114,16 @@ This root seed should be pure entropy
 ### new RootSeed()
 delegate to base class
 
-<a name="RootSeed+getDeviceSeed"></a>
+<a name="RootSeed+getDevicePinSeed"></a>
 
-### rootSeed.getDeviceSeed(index) ⇒ [<code>DeviceSeed</code>](#DeviceSeed)
-generate a device seed given an index based on this seed
+### rootSeed.getDevicePinSeed(pin) ⇒ [<code>DevicePinSeed</code>](#DevicePinSeed)
+generate a device pin seed by applying pwhash of pin with this seed as the salt
 
 **Kind**: instance method of [<code>RootSeed</code>](#RootSeed)  
 
-| Param | Type |
-| --- | --- |
-| index | <code>number</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| pin | <code>string</code> | should be >= 4 characters 1-9 |
 
 <a name="RootSeed.newRandom"></a>
 

@@ -7,27 +7,26 @@ const util = require('./util')
 const {
   Seed,
   RootSeed,
-  DeviceSeed,
   DevicePinSeed
 } = require('./index')
 
-describe('Root Seed Suite',async ()=>{
-
-  let root_seed="";
+describe('Root Seed Suite', async () => {
+  let seed = ''
+  let rootSeed = ''
   beforeEach(async () => {
     seed = await util.randomBytes(32)
   })
 
   it('should initialize a RootSeed', async () => {
-    root_seed = new RootSeed(seed)
-    expect(root_seed.getMnemonic().split(/\s/g).length).equals(24)
+    rootSeed = new RootSeed(seed)
+    expect(rootSeed.getMnemonic().split(/\s/g).length).equals(24)
   })
 
   it('should initialize DevicePinSeed from RootSeed', async () => {
-    const device_pin_seed = await root_seed.getDevicePinSeed("qwecarseivshiyvkgsuygcs")
-    expect(device_pin_seed.getMnemonic().split(/\s/g).length).equals(24)
+    const devicePinSeed = await rootSeed.getDevicePinSeed('qwecarseivshiyvkgsuygcs')
+    expect(devicePinSeed.getMnemonic().split(/\s/g).length).equals(24)
   })
-});
+})
 
 describe('seed Suite', async () => {
   it('should initialize with a Buffer', async () => {
@@ -115,13 +114,10 @@ describe('seed Suite', async () => {
   describe('device seed subsuite', () => {
     let seed = null
     let rs = null
-    let ds = null
-    let dps = null
 
     beforeEach(async () => {
       seed = await util.randomBytes(32)
       rs = await new RootSeed(seed)
-      dps = await rs.getDevicePinSeed("QvtsDcsvgbdfs")
     })
 
     it('should throw on bad device seed index', async () => {

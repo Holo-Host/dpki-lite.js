@@ -14,7 +14,7 @@ class Seed {
    * @param {string} type - the persistence bundle type
    * @param {Buffer|string} seed - the private seed data (as a buffer or mnemonic)
    */
-  constructor(type, seed) {
+  constructor (type, seed) {
     if (typeof type !== 'string') {
       throw new Error('type must be specified for bundling')
     }
@@ -41,12 +41,9 @@ class Seed {
    * @param {string} passphrase - the decryption passphrase
    * @return {RootSeed|DeviceSeed|DevicePinSeed}
    */
-  static async fromBundle(bundle, passphrase) {
+  static async fromBundle (bundle, passphrase) {
     let Class = null
     switch (bundle.type) {
-      case 'holoDeviceSeed':
-        Class = DeviceSeed
-        break
       case 'holoDevicePinSeed':
         Class = DevicePinSeed
         break
@@ -64,7 +61,7 @@ class Seed {
    * @param {string} passphrase - the encryption passphrase
    * @param {string} hint - additional info / description for persistence
    */
-  async getBundle(passphrase, hint) {
+  async getBundle (passphrase, hint) {
     if (typeof hint !== 'string') {
       throw new Error('hint must be a string')
     }
@@ -82,7 +79,7 @@ class Seed {
    * generate a bip39 mnemonic based on the private seed entroyp
    */
   // TODO: not tested
-  getMnemonic() {
+  getMnemonic () {
     return bip39.entropyToMnemonic(Buffer.from(this._seed).toString('hex'))
   }
 }
@@ -96,7 +93,7 @@ class DevicePinSeed extends Seed {
   /**
    * delegate to base class
    */
-  constructor(seed) {
+  constructor (seed) {
     super('holoDevicePinSeed', seed)
   }
 
@@ -105,7 +102,7 @@ class DevicePinSeed extends Seed {
    * @param {number} index
    * @return {Keypair}
    */
-  async getApplicationKeypair(index) {
+  async getApplicationKeypair (index) {
     if (typeof index !== 'number' || parseInt(index, 10) !== index || index < 1) {
       throw new Error('invalid index')
     }
@@ -125,14 +122,14 @@ class RootSeed extends Seed {
   /**
    * delegate to base class
    */
-  constructor(seed) {
+  constructor (seed) {
     super('holoRootSeed', seed)
   }
 
   /**
    * Get a new, completely random root seed
    */
-  static async newRandom() {
+  static async newRandom () {
     const seed = await util.randomBytes(32)
     return new RootSeed(seed)
   }
@@ -142,17 +139,17 @@ class RootSeed extends Seed {
    * @param {string} pin - should be >= 4 characters 1-9
    * @return {DevicePinSeed}
    */
-  async getDevicePinSeed(dna) {
+  async getDevicePinSeed (dna) {
     if (typeof dna !== 'string' || dna.length < 4) {
       throw new Error('dna must be a string >= 4 characters')
     }
     dna = Buffer.from(dna, 'utf8')
 
-    const sodium = await util.libsodium();
+    const sodium = await util.libsodium()
 
-    const dna_seed = sodium.crypto_hash_sha256(Buffer.concat([dna, this._seed]))
+    const dnaSeed = sodium.crypto_hash_sha256(Buffer.concat([dna, this._seed]))
 
-    return new DevicePinSeed(dna_seed)
+    return new DevicePinSeed(dnaSeed)
   }
 }
 
