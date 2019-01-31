@@ -1,5 +1,5 @@
 const bip39 = require('bip39')
-
+let Buffer = require('safe-buffer').Buffer
 const {
   Keypair
 } = require('./keypair')

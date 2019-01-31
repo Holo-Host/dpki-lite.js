@@ -1,6 +1,6 @@
 const msgpack = require('msgpack-lite')
 const util = require('./util')
-
+let Buffer = require('safe-buffer').Buffer
 const NONCEBYTES = 24
 
 /**

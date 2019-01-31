@@ -1,6 +1,6 @@
 const _sodium = require('libsodium-wrappers-sumo')
 const msgpack = require('msgpack-lite')
-
+let Buffer = require('safe-buffer').Buffer
 const NONCEBYTES = 24
 const SALTBYTES = 16
 
