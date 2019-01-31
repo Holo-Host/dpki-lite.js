@@ -19,19 +19,15 @@ class Seed {
       throw new Error('type must be specified for bundling')
     }
     this._type = type
-    try {
-      if (typeof seed === 'string' && seed.split(/\s/g).length === 24) {
-        if (!bip39.validateMnemonic(seed)) {
-          throw new Error('invalid mnemonic string')
-        }
-        this._seed = Buffer.from(bip39.mnemonicToEntropy(seed), 'hex')
-      } else if ((seed.constructor === Uint8Array && seed.length === 32) || (seed.constructor === Uint8Array && seed.length === 16)) {
-        this._seed = seed
-      } else {
-        throw new Error('`seed` must be a 16/32 byte Buffer or 24 word bip39 mnemonic string')
+    if (typeof seed === 'string' && seed.split(/\s/g).length === 24) {
+      if (!bip39.validateMnemonic(seed)) {
+        throw new Error('invalid mnemonic string')
       }
-    } catch (e) {
-      throw new Error('`Error Throwen: seed` must be a 16/32 byte Buffer or 24 word bip39 mnemonic string')
+      this._seed = Buffer.from(bip39.mnemonicToEntropy(seed), 'hex')
+    } else if ((seed.constructor === Uint8Array && seed.length === 32) || (seed.constructor === Uint8Array && seed.length === 16)) {
+      this._seed = seed
+    } else {
+      throw new Error('`seed` must be a 16/32 byte Buffer or 24 word bip39 mnemonic string')
     }
   }
 
