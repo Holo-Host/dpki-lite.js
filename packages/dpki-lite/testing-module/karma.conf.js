@@ -11,12 +11,12 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [],
-        plugins:[
-          require('karma-mocha'),
-          require('karma-chrome-launcher'),
-          require('karma-coverage'),
-          require('karma-html2js-preprocessor')
-        ],
+        // plugins:[
+        //   require('karma-mocha'),
+        //   require('karma-chrome-launcher'),
+        //   require('karma-coverage'),
+        //   require('karma-html2js-preprocessor')
+        // ],
         // list of files to exclude
         exclude: [
         ],

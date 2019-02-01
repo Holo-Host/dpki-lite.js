@@ -1,23 +1,27 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
-
+// var AsyncAwaitPlugin = require('webpack-async-await') ;
+// var options = { }
 module.exports = {
-  entry: './lib/index.js',
+  entry: ['babel-polyfill', './lib/index.js'],
   output: {
     path: path.resolve(__dirname, 'testing-module/js/'),
     filename: 'bundle.js',
     libraryTarget: 'umd',
-    library: 'add'
   },
   module: {
     rules: [
       {
         test: /\.(js)$/,
+        exclude: /(node_modules|bower_components)/,
         use: 'babel-loader'
       }
     ]
   },
   plugins: [
     // new webpack.optimize.UglifyJsPlugin()
+    // new AsyncAwaitPlugin(options)
+    new HtmlWebpackPlugin(),
   ]
 }

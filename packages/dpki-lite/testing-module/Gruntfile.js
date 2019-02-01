@@ -54,8 +54,9 @@ module.exports = function(grunt) {
             dev: {
                 // On our local environment we want to test all the things!
                 browsers: [
-                  // 'ChromeHeadless'
-                  'Chrome', 'Firefox'
+                  // 'ChromeHeadless',
+                  // 'Firefox',
+                  'Chrome'
                 ]
             },
 
