@@ -1,15 +1,16 @@
-const {
-  expect
-} = require('chai')
+// const {
+//   expect
+// } = require('chai')
+//
+// const util = require('./util')
+//
+// const {
+//   Seed,
+//   RootSeed,
+//   DevicePinSeed
+// } = require('./index')
 
-const util = require('./util')
-
-const {
-  Seed,
-  RootSeed,
-  DevicePinSeed
-} = require('./index')
-
+      var expect = chai.expect;
 describe('Root Seed Suite', async () => {
   let seed = ''
   let rootSeed = ''

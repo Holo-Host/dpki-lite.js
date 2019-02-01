@@ -1,12 +1,13 @@
-const {
-  expect
-} = require('chai')
+// const {
+//   expect
+// } = require('chai')
+//
+// const {
+//   Keypair
+// } = require('./index')
+// const util = require('./util')
 
-const {
-  Keypair
-} = require('./index')
-const util = require('./util')
-
+      var expect = chai.expect;
 describe('keypair Suite', () => {
   let pair0 = null
   let pair1 = null

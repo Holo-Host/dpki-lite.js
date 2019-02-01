@@ -4,8 +4,8 @@ const webpack = require('webpack');
 module.exports = {
   entry: './lib/index.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'dpki.lite.js',
+    path: path.resolve(__dirname, 'testing-module/js/'),
+    filename: 'bundle.js',
     libraryTarget: 'umd',
     library: 'add'
   },

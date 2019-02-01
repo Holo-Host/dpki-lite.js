@@ -8,9 +8,11 @@
     "mocha": "mocha lib/**/*.test.js bin/**/*.test.js",
     "nyc": "nyc npm run mocha",
     "karma": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
-    "test": "npm run lint && npm run nyc",
+    "test-nyc": "npm run lint && npm run nyc",
     "show-coverage": "node -e \"require('opn')('coverage/lcov-report/index.html')\"",
-    "build-webpack": "webpack"
+    "build-webpack": "webpack",
+    "test":"npm run build-webpack && cd testing-module && grunt karma:dev"
+
   },
   "license": "Apache-2.0",
   "devDependencies": {
@@ -19,12 +21,6 @@
     "babel-preset-env": "^1.2.1",
     "babel-preset-es2015": "^6.22.0",
     "chai": "^4.2.0",
-    "karma": "^4.0.0",
-    "karma-chai": "^0.1.0",
-    "karma-chrome-launcher": "^2.2.0",
-    "karma-cli": "^2.0.0",
-    "karma-mocha": "^1.3.0",
-    "karma-requirejs": "^1.1.0",
     "mocha": "^5.2.0",
     "nyc": "^12.0.2",
     "opn": "^5.4.0",
@@ -35,8 +31,7 @@
   "dependencies": {
     "bip39": "^2.5.0",
     "libsodium-wrappers-sumo": "^0.7.4",
-    "msgpack-lite": "^0.1.26",
-    "prompt": "^1.0.0"
+    "msgpack-lite": "^0.1.26"
   },
   "standard": {
     "env": {
