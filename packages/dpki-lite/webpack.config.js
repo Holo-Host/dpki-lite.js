@@ -6,7 +6,7 @@ const webpack = require('webpack');
 module.exports = {
   entry: ['babel-polyfill', './lib/index.js'],
   output: {
-    path: path.resolve(__dirname, 'testing-module/js/'),
+    path: path.resolve(__dirname, 'js/'),
     filename: 'bundle.js',
     libraryTarget: 'umd',
   },
