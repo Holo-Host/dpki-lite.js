@@ -3,14 +3,12 @@ const msgpack = require('msgpack-lite')
 
 const NONCEBYTES = 24
 const SALTBYTES = 16
-//////////
-// return new Promise((resolve, reject) => {
-//   _sodium.ready.then((sodium)=>{
-//     resolve(_sodium.randombytes_buf(count));
-//     reject("failure reason"); // rejected
-//   })
-// });
-////////////////
+
+// async function libsodium () {
+//   await _sodium.ready
+//   return _sodium
+// }
+// exports.libsodium = libsodium
 
 /**
  * Output `count` random bytes
@@ -89,13 +87,7 @@ async function verify (signature, data, signerId) {
   });
 
 }
-// exports.verify = verify
-// return new Promise((resolve, reject) => {
-//   _sodium.ready.then((sodium)=>{
-//     resolve(_sodium.randombytes_buf(count));
-//     reject("failure reason");
-//   })
-// });
+exports.verify = verify
 /**
  * simplify the api for generating a password hash with our set parameters
  * @param {Buffer} pass - the password buffer to hash
@@ -141,7 +133,7 @@ exports.pwHash = pwHash
 function pwEnc (data, passphrase, adata) {
   return new Promise((resolve, reject) => {
     _sodium.ready.then((_)=>{
-       resolve(pwHash(passphrase).then(pw=>{
+       pwHash(passphrase).then(pw=>{
         const salt = pw.salt;
         const secret = pw.hash;
         const nonce = _sodium.randombytes_buf(NONCEBYTES)
@@ -153,9 +145,7 @@ function pwEnc (data, passphrase, adata) {
           cipher: ciphertext
         }));
         reject("failure reason");
-
-      }))
-      reject("failure reason");
+      })
     })
   });
 }
@@ -172,12 +162,11 @@ function pwDec (data, passphrase, adata) {
   return new Promise((resolve, reject) => {
     pwHash(passphrase, data.salt).then(pw=>{
       const secret = pw.hash;
-      resolve(_sodium.ready.then((sodium)=>{
+      _sodium.ready.then((sodium)=>{
         resolve(_sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
           null, data.cipher, adata || null, data.nonce, secret));
           reject("failure reason"); // rejected
-        }))
-      reject("failure reason");
+        })
     })
   });
 }
