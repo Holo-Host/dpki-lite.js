@@ -75,14 +75,14 @@ exports.decodeId = decodeId
  * @param {Buffer} data - the binary data to verify
  * @param {string} signerId - the signer's public identity string
  */
-async function verify (signature, data, signerId) {
-  const {
-    signPub
-  } = await decodeId(signerId)
+function verify (signature, data, signerId) {
   return new Promise((resolve, reject) => {
-    _sodium.ready.then((sodium)=>{
-      resolve(_sodium.crypto_sign_verify_detached(signature, data, signPub));
-      reject("failure reason"); // rejected
+    decodeId(signerId).then(pw=>{
+      const signPub = pw.signPub;
+      _sodium.ready.then((sodium)=>{
+        resolve(_sodium.crypto_sign_verify_detached(signature, data, signPub));
+        reject("failure reason");
+    })
     })
   });
 
@@ -162,7 +162,7 @@ function pwDec (data, passphrase, adata) {
   return new Promise((resolve, reject) => {
     pwHash(passphrase, data.salt).then(pw=>{
       const secret = pw.hash;
-      _sodium.ready.then((sodium)=>{
+      _sodium.ready.then((_)=>{
         resolve(_sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
           null, data.cipher, adata || null, data.nonce, secret));
           reject("failure reason"); // rejected
