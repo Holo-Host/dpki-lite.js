@@ -10,7 +10,7 @@ const {
   DevicePinSeed
 } = require('./index')
 
-      // var expect = chai.expect;
+// var expect = chai.expect;
 describe('Root Seed Suite', async () => {
   let seed = ''
   let rootSeed = ''
