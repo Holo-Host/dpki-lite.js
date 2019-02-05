@@ -141,6 +141,7 @@ class Keypair {
           return new Promise((resolve, reject) => {
 
             for (let i = 0, p = Promise.resolve(); i < recipientIds.length; i++) {
+              console.log("DEBUG HERE");
               util.decodeId(recipientIds[i]).then(key => {
                 return (key.encPub);
               }).then(recipPub => {

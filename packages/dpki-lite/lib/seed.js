@@ -159,7 +159,7 @@ class RootSeed extends Seed {
     dna = Buffer.from(dna, 'utf8')
     return new Promise((resolve, reject) => {
       _sodium.ready.then((_) => {
-        const dnaSeed = _sodium.crypto_hash_sha256(Buffer.concat([dna, this._seed]))
+        const dnaSeed = _sodium.crypto_hash_sha256(new Uint8Array([...dna,...this._seed]))
         resolve(new DevicePinSeed(dnaSeed));
         reject("failure reason"); // rejected
       })

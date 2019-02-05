@@ -32,7 +32,7 @@ exports.randomBytes = randomBytes
 function encodeId(signPub, encPub) {
   return new Promise((resolve, reject) => {
     _sodium.ready.then((_) => {
-      resolve(_sodium.to_base64(Buffer.concat([signPub, encPub])));
+      resolve(_sodium.to_base64(new Uint8Array([...signPub,...encPub])));
       reject("failure reason"); // rejected
     })
   });
