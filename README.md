@@ -1,6 +1,6 @@
-# dpki-lite.lib
+# dpki-lite.js
 
-[![License: Apache-2.0](https://img.shields.io/crates/l/:crate.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The browser-side crypto lib for holo light clients
 
@@ -11,6 +11,10 @@ As far as client side libsodium crypto libs, this is the one I've had my eye on,
 **Who would be calling this lib?**
 
 The holo.js code would be doing this. it'll sort of be up to the UI designer for the particular app, but at some point if the user undertakes an action, and does not yet have a source chain, the app dev will trigger a holo.js api that will set up session hosts through the tranche service, and the user will need to generate private keys to set up core apps, etc, on that session host.
+
+### dpki-lite.js
+Download this js file to start using it.
+https://github.com/Holo-Host/dpki-lite.lib/blob/develop/packages/dpki-lite/js/dpki-lite.js
 
 ### Usage
 
