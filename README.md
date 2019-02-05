@@ -14,6 +14,25 @@ The holo.js code would be doing this. it'll sort of be up to the UI designer for
 
 ### Usage
 
+First go to the lib folder
+```shell
+cd package/dpki-lite
+```
+
+Next install the dependencies
+```shell
+npm install
+```
+
+Now, Build the lib by running
+```shell
+npm run build-webpack
+```
+Now look into the js folder you would see the `dpki-lite.js`
+This js file can be used in your browser 
+
+### Testing the Package
+
 First, make sure our own dependencies are installed:
 
 ```shell

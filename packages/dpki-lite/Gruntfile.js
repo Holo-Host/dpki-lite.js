@@ -42,7 +42,7 @@ module.exports = function(grunt) {
                     // In our case, the test and src files are the
                     // same for the dev and prod targets so we can include
                     // them in the global files option here
-                    "js/bundle.js",
+                    "js/dpki-lite.js",
                     'test/lib.test.js',
 
                     // html2js preprocessor takes this file and coverts it

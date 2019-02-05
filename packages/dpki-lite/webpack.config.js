@@ -7,7 +7,7 @@ module.exports = {
   entry: ['babel-polyfill', './lib/index.js'],
   output: {
     path: path.resolve(__dirname, 'js/'),
-    filename: 'bundle.js',
+    filename: 'dpki-lite.js',
     libraryTarget: 'umd',
   },
   module: {
