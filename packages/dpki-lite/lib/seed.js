@@ -1,3 +1,4 @@
+const _sodium = require('libsodium-wrappers-sumo')
 const bip39 = require('bip39')
 
 const {
@@ -14,7 +15,7 @@ class Seed {
    * @param {string} type - the persistence bundle type
    * @param {Buffer|string} seed - the private seed data (as a buffer or mnemonic)
    */
-  constructor (type, seed) {
+  constructor(type, seed) {
     if (typeof type !== 'string') {
       throw new Error('type must be specified for bundling')
     }
@@ -37,7 +38,7 @@ class Seed {
    * @param {string} passphrase - the decryption passphrase
    * @return {RootSeed|DeviceSeed|DevicePinSeed}
    */
-  static async fromBundle (bundle, passphrase) {
+  static fromBundle(bundle, passphrase) {
     let Class = null
     switch (bundle.type) {
       case 'holoDevicePinSeed':
@@ -49,7 +50,12 @@ class Seed {
       default:
         throw new Error('unrecognized bundle type: "' + bundle.type + '"')
     }
-    return new Class(await util.pwDec(bundle.data, passphrase))
+    return new Promise((resolve, reject) => {
+      util.pwDec(bundle.data, passphrase).then((seed) => {
+        resolve(new Class(seed));
+        reject("failure reason"); // rejected
+      })
+    });
   }
 
   /**
@@ -57,25 +63,28 @@ class Seed {
    * @param {string} passphrase - the encryption passphrase
    * @param {string} hint - additional info / description for persistence
    */
-  async getBundle (passphrase, hint) {
+  getBundle(passphrase, hint) {
     if (typeof hint !== 'string') {
       throw new Error('hint must be a string')
     }
 
-    const out = {
-      type: this._type,
-      hint,
-      data: (await util.pwEnc(this._seed, passphrase))
-    }
-
-    return out
+    return new Promise((resolve, reject) => {
+      util.pwEnc(this._seed, passphrase).then((data) => {
+        resolve({
+          type: this._type,
+          hint,
+          data
+        });
+        reject("failure reason");
+      })
+    });
   }
 
   /**
    * generate a bip39 mnemonic based on the private seed entroyp
    */
   // TODO: not tested
-  getMnemonic () {
+  getMnemonic() {
     return bip39.entropyToMnemonic(Buffer.from(this._seed).toString('hex'))
   }
 }
@@ -89,7 +98,7 @@ class DevicePinSeed extends Seed {
   /**
    * delegate to base class
    */
-  constructor (seed) {
+  constructor(seed) {
     super('holoDevicePinSeed', seed)
   }
 
@@ -98,14 +107,18 @@ class DevicePinSeed extends Seed {
    * @param {number} index
    * @return {Keypair}
    */
-  async getApplicationKeypair (index) {
+  getApplicationKeypair(index) {
     if (typeof index !== 'number' || parseInt(index, 10) !== index || index < 1) {
       throw new Error('invalid index')
     }
-    const sodium = await util.libsodium()
-    const appSeed = sodium.crypto_kdf_derive_from_key(32, index, Buffer.from('HOLO_APPLIC'), this._seed)
+    return new Promise((resolve, reject) => {
+      _sodium.ready.then((_) => {
+        const appSeed = _sodium.crypto_kdf_derive_from_key(32, index, Buffer.from('HOLO_APPLIC'), this._seed)
+        resolve(Keypair.newFromSeed(appSeed));
+        reject("failure reason");
+      })
+    });
 
-    return Keypair.newFromSeed(appSeed)
   }
 }
 
@@ -118,16 +131,20 @@ class RootSeed extends Seed {
   /**
    * delegate to base class
    */
-  constructor (seed) {
+  constructor(seed) {
     super('holoRootSeed', seed)
   }
 
   /**
    * Get a new, completely random root seed
    */
-  static async newRandom () {
-    const seed = await util.randomBytes(32)
-    return new RootSeed(seed)
+  static newRandom() {
+    return new Promise((resolve, reject) => {
+      util.randomBytes(32).then((seed) => {
+        resolve(new RootSeed(seed));
+        reject("failure reason"); // rejected
+      })
+    });
   }
 
   /**
@@ -135,17 +152,18 @@ class RootSeed extends Seed {
    * @param {string} pin - should be >= 4 characters 1-9
    * @return {DevicePinSeed}
    */
-  async getDevicePinSeed (dna) {
+  getDevicePinSeed(dna) {
     if (typeof dna !== 'string' || dna.length < 4) {
       throw new Error('dna must be a string >= 4 characters')
     }
     dna = Buffer.from(dna, 'utf8')
-
-    const sodium = await util.libsodium()
-
-    const dnaSeed = sodium.crypto_hash_sha256(Buffer.concat([dna, this._seed]))
-
-    return new DevicePinSeed(dnaSeed)
+    return new Promise((resolve, reject) => {
+      _sodium.ready.then((_) => {
+        const dnaSeed = _sodium.crypto_hash_sha256(Buffer.concat([dna, this._seed]))
+        resolve(new DevicePinSeed(dnaSeed));
+        reject("failure reason"); // rejected
+      })
+    });
   }
 }
 

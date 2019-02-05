@@ -1,0 +1,18 @@
+{
+    "globals": {
+        "before"          : true,
+        "after"           : true,
+        "beforeEach"      : true,
+        "afterEach"       : true,
+        "describe"        : true,
+        "it"              : true,
+        "it"              : true,
+        "setup"           : true,
+        "suite"           : true,
+        "teardown"        : true,
+        "test"            : true,
+        "chai"            : true,
+        "sinon"           : true
+    },
+    "expr": true
+}
