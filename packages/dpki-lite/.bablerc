@@ -1,6 +1,4 @@
 {
-  "presets": ["es2015"],
-  "plugins": ["transform-runtime",{
-  "regenerator": true,
-  }],
+  "presets": ["es2018"],
+  "plugins": ["@babel/plugin-proposal-async-generator-functions"]
 }

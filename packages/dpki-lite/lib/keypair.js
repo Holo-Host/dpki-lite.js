@@ -1,3 +1,4 @@
+const _sodium = require('libsodium-wrappers-sumo')
 const msgpack = require('msgpack-lite')
 const util = require('./util')
 
@@ -136,30 +137,42 @@ class Keypair {
       _sodium.ready.then((_)=>{
         util.randomBytes(32).then(symSecret=>{
           const out = []
-          for (let id of recipientIds) {
-            const recipPub =  util.decodeId(id).then(encPub=>{
-              return encPub;
-            })
-            // XXX lru cache these so we don't have to re-gen every time?
-            const {
-              sharedTx: tx
-            } = sodium.crypto_kx_server_session_keys(
-              this._encPub, this._encPriv, recipPub)
-            const nonce = sodium.randombytes_buf(NONCEBYTES)
+          let flag = false;
+          return new Promise((resolve,reject)=>{
 
-            const cipher = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(
-              symSecret, adata || null, null, nonce, tx)
-            out.push(nonce)
-            out.push(cipher)
-          }
+            for (let i=0,p=Promise.resolve();i<recipientIds.length; i++) {
+              util.decodeId(recipientIds[i]).then(key=>{
+                return (key.encPub);
+              }).then(recipPub=>{
+                // console.log("REC:: ",recipPub);
+                const {
+                  sharedTx: tx
+                } =  _sodium.crypto_kx_server_session_keys(
+                  this._encPub, this._encPriv, recipPub)
+                  const nonce = _sodium.randombytes_buf(NONCEBYTES)
+                  const cipher = _sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(
+                    symSecret, adata || null, null, nonce, tx)
+                    out.push(nonce)
+                    out.push(cipher)
+                    if(i==recipientIds.length-1){
+                      flag=true;
+                      resolve({out,symSecret})
+                    }
+                  })
 
-          const nonce = sodium.randombytes_buf(NONCEBYTES)
-          const cipher = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(data, adata || null, null, nonce, symSecret)
+                  // XXX lru cache these so we don't have to re-gen every time?
+                }
+          })
+        }).then((r)=>{
+          const out = r.out;
+          const symSecret = r.symSecret;
+          const nonce = _sodium.randombytes_buf(NONCEBYTES)
+          const cipher = _sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(data, adata || null, null, nonce, symSecret)
           out.push(nonce)
           out.push(cipher)
-
           resolve(msgpack.encode(out));
           reject("failure reason"); // rejected
+
         });
       })
     });
@@ -177,10 +190,11 @@ class Keypair {
 
     return new Promise((resolve, reject) => {
       _sodium.ready.then((_)=>{
-        util.decodeId(sId).then(sourceId=>{
+        util.decodeId(sId).then(id=>{
           // we will call the encryptor the "server"
           // and the recipient (us) the "client"
           // XXX cache?
+          let sourceId = id.encPub;
           const {
             sharedRx: rx
           } = _sodium.crypto_kx_client_session_keys(this._encPub, this._encPriv, sourceId)
@@ -194,14 +208,13 @@ class Keypair {
               /* pass */
             }
           }
-
           if (!symSecret) {
-            throw new Error('could not decrypt - not a recipient?')
+            reject(new Error('could not decrypt - not a recipient?'));
+          }else {
+            resolve(_sodium.to_string(_sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
+              null, cipher[cipher.length - 1], adata || null, cipher[cipher.length - 2], symSecret)));
+            reject("failure reason"); // rejected
           }
-
-          resolve(_sodium.to_string(_sodium.crypto_aead_xchacha20poly1305_ietf_decrypt(
-            null, cipher[cipher.length - 1], adata || null, cipher[cipher.length - 2], symSecret)));
-          reject("failure reason"); // rejected
         });
       })
     });

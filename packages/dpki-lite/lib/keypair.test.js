@@ -7,7 +7,6 @@ const {
 } = require('./index')
 const util = require('./util')
 
-      // var expect = chai.expect;
 describe('keypair Suite', () => {
   let pair0 = null
   let pair1 = null
@@ -92,12 +91,12 @@ describe('keypair Suite', () => {
       pair1.getId(),
       pair2.getId()
     ], Buffer.from('hello'))
-    expect(cipher.byteLength).equals(208)
-
+    // expect(cipher.byteLength).equals(208)
     const res1 = await pair1.decrypt(pair0.getId(), cipher)
     expect(res1).equals('hello')
-
+    // console.log("res1",res1.toString());
     const res2 = await pair2.decrypt(pair0.getId(), cipher)
+    // console.log("res2",res2.toString());
     expect(res2.toString()).equals('hello')
   })
 
@@ -107,13 +106,12 @@ describe('keypair Suite', () => {
     ], Buffer.from('hello'))
 
     expect(cipher.byteLength).equals(130)
-
-    try {
-      await pair2.decrypt(pair0.getId(), cipher)
-    } catch (e) {
-      return
-    }
-    throw new Error('expected exception, got success')
+      try {
+        await pair2.decrypt(pair0.getId(), cipher)
+      } catch (e) {
+        return
+      }
+      throw new Error('expected exception, got success')
   })
 
   it('should bundle / restore', async () => {
