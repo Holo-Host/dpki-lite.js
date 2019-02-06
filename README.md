@@ -33,7 +33,7 @@ Now, Build the lib by running
 npm run build-webpack
 ```
 Now look into the js folder you would see the `dpki-lite.js`
-This js file can be used in your browser 
+This js file can be used in your browser
 
 ### Testing the Package
 
@@ -53,6 +53,15 @@ Now, test all projects:
 
 ```shell
 npm test
+```
+
+### Test for Browsers
+
+cd into  dpki-lite folder
+
+Run
+```shell
+npm run test
 ```
 
 ### New projects
