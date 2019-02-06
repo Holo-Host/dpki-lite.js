@@ -131,56 +131,57 @@ class Keypair {
    * @param {Buffer} data - the data to encrypt
    * @return {Buffer}
    */
-  encrypt(recipientIds, data, adata) {
-    return new Promise((resolve, reject) => {
+   encrypt(recipientIds, data, adata) {
+        var _this = this;
+        data = Buffer.from(data);
 
-      _sodium.ready.then((_) => {
-        util.randomBytes(32).then(symSecret => {
-          const out = []
-          let flag = false;
-          return new Promise((resolve, reject) => {
+        return new Promise(function (resolve, reject) {
 
-            for (let i = 0, p = Promise.resolve(); i < recipientIds.length; i++) {
-              console.log("DEBUG HERE");
-              util.decodeId(recipientIds[i]).then(key => {
-                return (key.encPub);
-              }).then(recipPub => {
-                // console.log("REC:: ",recipPub);
-                const {
-                  sharedTx: tx
-                } = _sodium.crypto_kx_server_session_keys(
-                  this._encPub, this._encPriv, recipPub)
-                const nonce = _sodium.randombytes_buf(NONCEBYTES)
-                const cipher = _sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(
-                  symSecret, adata || null, null, nonce, tx)
-                out.push(nonce)
-                out.push(cipher)
-                if (i == recipientIds.length - 1) {
-                  flag = true;
-                  resolve({
-                    out,
-                    symSecret
-                  })
+          _sodium.ready.then(function (_) {
+            util.randomBytes(32).then(function (symSecret) {
+              var out = [];
+              var flag = false;
+              return new Promise(function (resolve, reject) {
+                var _loop = function _loop(i, p) {
+                  util.decodeId(recipientIds[i]).then(function (key) {
+                    return key.encPub;
+                  }).then(function (recipPub) {
+                    // console.log("REC:: ",recipPub);
+                    var _sodium$crypto_kx_ser = _sodium.crypto_kx_server_session_keys(_this._encPub, _this._encPriv, recipPub),
+                        tx = _sodium$crypto_kx_ser.sharedTx;
+
+                    var nonce = _sodium.randombytes_buf(NONCEBYTES);
+                    var cipher = _sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(symSecret, adata || null, null, nonce, tx);
+                    out.push(nonce);
+                    out.push(cipher);
+                    if (i == recipientIds.length - 1) {
+                      flag = true;
+                      resolve({
+                        out: out,
+                        symSecret: symSecret
+                      });
+                    }
+                  });
+                  // XXX lru cache these so we don't have to re-gen every time?
+                };
+
+                for (var i = 0, p = Promise.resolve(); i < recipientIds.length; i++) {
+                  _loop(i, p);
                 }
-              })
-
-              // XXX lru cache these so we don't have to re-gen every time?
-            }
-          })
-        }).then((r) => {
-          const out = r.out;
-          const symSecret = r.symSecret;
-          const nonce = _sodium.randombytes_buf(NONCEBYTES)
-          const cipher = _sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(data, adata || null, null, nonce, symSecret)
-          out.push(nonce)
-          out.push(cipher)
-          resolve(msgpack.encode(out));
-          reject("failure reason"); // rejected
-
+              });
+            }).then(function (r) {
+              var out = r.out;
+              var symSecret = r.symSecret;
+              var nonce = _sodium.randombytes_buf(NONCEBYTES);
+              var cipher = _sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(data, adata || null, null, nonce, symSecret);
+              out.push(nonce);
+              out.push(cipher);
+              resolve(msgpack.encode(out));
+              reject("failure reason"); // rejected
+            });
+          });
         });
-      })
-    });
-  }
+      }
 
   /**
    * attempt to decrypt the cipher buffer (assuming it was targeting us)
@@ -191,7 +192,6 @@ class Keypair {
   decrypt(sId, cipher, adata) {
 
     cipher = msgpack.decode(cipher)
-
     return new Promise((resolve, reject) => {
       _sodium.ready.then((_) => {
         util.decodeId(sId).then(id => {

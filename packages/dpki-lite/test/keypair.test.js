@@ -81,25 +81,6 @@ describe('keypair Suite', () => {
     expect(await pair0.verify(sig, new Uint8Array([9,8,8,3]))).equals(true)
   })
 
-  // it('others should not be able to decrypt', async () => {
-  //   console.log("-------");
-  //   const cipher = await pair0.encrypt([
-  //     pair1.getId()
-  //   ], new Uint8Array([9,8,8,3]))
-  //   console.log("-------");
-  //   expect(cipher.byteLength).equals(130)
-  //   try {
-  //     await pair2.decrypt(pair0.getId(), cipher)
-  //     console.log("-------");
-  //     } catch (e) {
-  //       console.log("-------");
-  //       return
-  //   }
-  //   console.log("-------");
-  //
-  //   throw new Error('expected exception, got success')
-  // })
-
   it('should bundle / restore', async () => {
     pair0.getBundle(new Uint8Array([9,8,8,3]), 'hola').then(
       (b) => {
@@ -132,6 +113,33 @@ describe('keypair Suite', () => {
       await p.sign(new Uint8Array([9,8,8,3]))
     } catch (e) {
       return
+    }
+    throw new Error('expected exception, got success')
+  })
+
+  it('should enc / dec', async () => {
+    const cipher = await pair0.encrypt([
+      pair1.getId(),
+      pair2.getId()
+    ], 'hello')
+    // expect(cipher.byteLength).equals(208)
+    const res1 = await pair1.decrypt(pair0.getId(), cipher)
+    expect(res1).equals('hello')
+    // console.log("res1",res1.toString());
+    const res2 = await pair2.decrypt(pair0.getId(), cipher)
+    // console.log("res2",res2.toString());
+    expect(res2.toString()).equals('hello')
+  })
+
+  it('others should not be able to decrypt', async () => {
+    const cipher = await pair0.encrypt([
+      pair1.getId()
+    ], 'hello')
+    expect(cipher.byteLength).equals(130)
+    try {
+      await pair2.decrypt(pair0.getId(), cipher)
+      } catch (e) {
+        return
     }
     throw new Error('expected exception, got success')
   })
