@@ -1,0 +1,4 @@
+{
+  "presets": ["es2018"],
+  "plugins": ["@babel/plugin-proposal-async-generator-functions"]
+}
