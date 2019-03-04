@@ -90,7 +90,7 @@ function pwHash (pass, salt) {
     _sodium.ready.then((_) => {
       const opt = {
         opslimit: _sodium.crypto_pwhash_OPSLIMIT_SENSITIVE,
-        memlimit: _sodium.crypto_pwhash_MEMLIMIT_SENSITIVE,
+        memlimit: _sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
         algorithm: _sodium.crypto_pwhash_ALG_ARGON2ID13,
         keyLength: 32
       }
